@@ -1,0 +1,36 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: azure-minecraft
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: azure-minecraft
+    spec:
+      containers:
+      - name: azure-minecraft
+        image: openhack/minecraft-server:1.0
+        ports:
+        - containerPort: 25565
+          name: connport
+        - containerPort: 25575
+          name: remoteport
+        env:
+        - name: EULA
+          value: "TRUE"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: azure-minecraft
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 25565
+    name: connport
+  - port: 25575
+    name: remoteport
+  selector:
+    app: azure-minecraft
