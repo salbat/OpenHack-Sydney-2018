@@ -1,17 +1,20 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: azure-minecraft
+  name: azure-minecraft-ps
 spec:
-  replicas: 1
+  replicas: 3
   template:
     metadata:
       labels:
-        app: azure-minecraft
+        app: azure-minecraft-ps
     spec:
       containers:
       - name: azure-minecraft
         image: openhack/minecraft-server:1.0
+        volumeMounts:
+        - mountPath: "/data"
+          name: azurefileshare
         ports:
         - containerPort: 25565
           name: connport
@@ -20,10 +23,10 @@ spec:
         env:
         - name: EULA
           value: "TRUE"
-        volumes:
+      volumes:
         - name: azurefileshare
           persistentVolumeClaim:
-          claimName: dynamic-persistence-volume-claim
+            claimName: dynamic-persistence-volume-claim
 ---
 apiVersion: v1
 kind: Service
@@ -37,7 +40,7 @@ spec:
   - port: 25575
     name: remoteport
   selector:
-    app: azure-minecraft
+    app: azure-minecraft-ps
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -45,8 +48,8 @@ metadata:
   name: dynamic-persistence-volume-claim
 spec:
   accessModes:
-    - ReadWriteMany
-  storageClassName: azurefilestorage
+    - ReadWriteOnce
+  storageClassName: default
   resources:
     requests:
-      storage: 5Gi
+      storage: 7Gi
