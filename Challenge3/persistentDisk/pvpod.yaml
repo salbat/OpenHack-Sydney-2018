@@ -15,7 +15,7 @@ spec:
         image: openhack/minecraft-server:1.0
         volumeMounts:
         - mountPath: "/data"
-          name: azuredisk
+          name: data
         ports:
         - containerPort: 25565
           name: connport
@@ -24,10 +24,15 @@ spec:
         env:
         - name: EULA
           value: "TRUE"
-      volumes:
-        - name: azuredisk
-          persistentVolumeClaim:
-            claimName: dynamic-persistence-volume-claim
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "default"
+      resources:
+        requests:
+          storage: 1Gi
 ---
 apiVersion: v1
 kind: Service
@@ -42,30 +47,3 @@ spec:
     name: remoteport
   selector:
     app: azure-minecraft-ps
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: dynamic-persistence-volume-claim
-  annotations:
-    volume.beta.kubernetes.io/storage-class: managed-premium
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: default
-  resources:
-    requests:
-      storage: 7Gi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: azuredisk
-  annotations:
-    volume.beta.kubernetes.io/storage-class: managed-premium
-spec:
-  accessModes:
-  - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi

@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: minecraft-pv
+spec:
+  capacity:
+    storage: 4Gi
+  storageClassName: default
+  azureDisk:
+      kind: Managed
+      diskName: Minecraft-Data-Test01
+      fsType: xfs
+      diskURI: /subscriptions/0457ec13-e448-4988-8898-3a7dfea7278c/resourceGroups/Static-Staging-Disks-Centralus/providers/Microsoft.Compute/disks/Minecraft-Data-Test01
+  accessModes:
+  - ReadWriteOnce
+  claimRef:
+    name: minecraft-pvc
+    namespace: default
